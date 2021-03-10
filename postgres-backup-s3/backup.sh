@@ -57,12 +57,12 @@ export AWS_DEFAULT_REGION=$S3_REGION
 export PGPASSWORD=$POSTGRES_PASSWORD
 POSTGRES_HOST_OPTS="-h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER $POSTGRES_EXTRA_OPTS"
 
-echo "Creating dump of ${POSTGRES_DATABASE} database from ${POSTGRES_HOST}..."
+echo "creating dump of ${POSTGRES_DATABASE}@${POSTGRES_HOST}:${POSTGRES_PORT}"
 
 pg_dump $POSTGRES_HOST_OPTS $POSTGRES_DATABASE | gzip > dump.sql.gz
 
-echo "Uploading dump to $S3_BUCKET"
+echo "uploading dump to $S3_BUCKET"
 
 cat dump.sql.gz | aws $AWS_ARGS s3 cp - s3://$S3_BUCKET/$S3_PREFIX/$(date +"%Y")/$(date +"%m")/$(date +"%d")/${POSTGRES_DATABASE}_$(date +"%H:%M:%SZ").sql.gz || exit 2
 
-echo "SQL backup uploaded successfully"
+echo "uploaded dump, done"
