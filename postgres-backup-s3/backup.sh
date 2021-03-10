@@ -61,8 +61,9 @@ echo "creating dump of ${POSTGRES_DATABASE}@${POSTGRES_HOST}:${POSTGRES_PORT}"
 
 pg_dump $POSTGRES_HOST_OPTS $POSTGRES_DATABASE | gzip > dump.sql.gz
 
-echo "uploading dump to $S3_BUCKET"
+_S3_URL="s3://$S3_BUCKET/$S3_PREFIX/$(date +"%Y")/$(date +"%m")/$(date +"%d")/${POSTGRES_DATABASE}_$(date +"%H:%M:%SZ").sql.gz"
+echo "uploading dump to ${_S3_URL}"
 
-cat dump.sql.gz | aws $AWS_ARGS s3 cp - s3://$S3_BUCKET/$S3_PREFIX/$(date +"%Y")/$(date +"%m")/$(date +"%d")/${POSTGRES_DATABASE}_$(date +"%H:%M:%SZ").sql.gz || exit 2
+cat dump.sql.gz | aws $AWS_ARGS s3 cp - $_S3_URL || exit 2
 
 echo "uploaded dump, done"
